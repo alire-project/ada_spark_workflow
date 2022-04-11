@@ -1,0 +1,17 @@
+name = "tests"
+description = "Shiny new project"
+version = "0.0.0"
+
+executables = ["tests"]
+
+[[depends-on]]
+aunit = "^22.0.0"
+gnatprove = "^11.2.3"
+gnatcov = "^22.0.1"
+ada_spark_workflow = "~0.0.0"
+
+[[pins]]
+ada_spark_workflow = { path='../../ada_spark_workflow' }
+
+[build-profiles]
+ada_spark_workflow = "development"

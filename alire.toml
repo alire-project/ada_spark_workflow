@@ -1,0 +1,11 @@
+name = "ada_spark_workflow"
+description = "Shiny new project"
+version = "0.1.0-dev"
+
+[[depends-on]]
+gnatcoll = "^22.0.0"
+ada_toml = "~0.3.0"
+[[depends-on]]
+resources = "~0.1.0"
+[[pins]]
+resources = { url='https://github.com/alire-project/resources' }

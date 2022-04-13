@@ -1,25 +1,30 @@
-with Ada.Numerics.Discrete_Random;
+with Ada_SPARK_Workflow.Word_Search.RNG;
 
 procedure Ada_SPARK_Workflow.Word_Search.Shuffle
   (Vect : in out Vector_Pck.Vector)
 is
    use Vector_Pck;
 
-   package Rand_Index is new Ada.Numerics.Discrete_Random (Index_Type);
+   package Index_RNG is new Word_Search.RNG (Index_Type);
 
-   Gen : Rand_Index.Generator;
+   Gen : constant Index_RNG.Instance := Index_RNG.Create;
 
    First : constant Index_Type := First_Index (Vect);
-   Last  : constant Index_Type := Last_Index (Vect);
+   Last  : constant Extended_Index := Last_Index (Vect);
 
 begin
 
-   Rand_Index.Reset (Gen);
+   if Last not in Index_Type then
+      return;
+   end if;
 
-   for X in First .. Last loop
+   for X in First .. Index_Type (Last) loop
+      pragma Loop_Invariant (First_Index (Vect) = First);
+      pragma Loop_Invariant (Last_Index (Vect) = Last);
+
       Vector_Pck.Swap (Vect,
                        X,
-                       Rand_Index.Random (Gen, X, Last));
+                       Gen.Random (X, Last));
    end loop;
 
 end Ada_SPARK_Workflow.Word_Search.Shuffle;

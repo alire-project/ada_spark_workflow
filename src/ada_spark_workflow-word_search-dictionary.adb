@@ -3,15 +3,20 @@ with Ada.Text_IO;
 with Ada_SPARK_Workflow.Resources;
 with Ada_SPARK_Workflow.Word_Search.Shuffle;
 
-package body Ada_SPARK_Workflow.Word_Search.Dictionary is
+package body Ada_SPARK_Workflow.Word_Search.Dictionary
+with SPARK_Mode
+is
 
-   ------------
-   -- Create --
-   ------------
+   ----------
+   -- Load --
+   ----------
 
-   function Create (Min_Word_Len, Max_Word_Len : Positive) return Instance is
+   procedure Load (This : in out Instance;
+                   Min_Word_Len, Max_Word_Len : Positive)
+   is
+      use Word_Vector;
       use Ada.Text_IO;
-      use Ada.Containers;
+      use type Ada.Containers.Count_Type;
 
       ----------------
       -- Valid_Word --
@@ -20,54 +25,47 @@ package body Ada_SPARK_Workflow.Word_Search.Dictionary is
       function Valid_Word (Str : String) return Boolean
       is (Str'Length in Min_Word_Len .. Max_Word_Len
           and then
-          Str'Length <= Word.Max_Word_Length
+          Str'Length <= Word.Max_Length
           and then
             (for all C of Str => C in 'a' .. 'z'));
 
-      -----------------------
-      -- Count_Valid_Words --
-      -----------------------
+      Res_Path : constant String := Resources.Resource_Path;
+      Filename : constant String := "/unixdict.txt";
 
-      function Count_Valid_Words (File : File_Type) return Count_Type is
-         Result : Count_Type := 0;
-      begin
-         while not End_Of_File (File) loop
-            if Valid_Word (Get_Line (File)) then
-               Result := Result + 1;
-            end if;
-         end loop;
-         return Result;
-      end Count_Valid_Words;
-
-      Filename : constant String := Resources.Resource_Path & "/unixdict.txt";
       File : File_Type;
 
-      Valid_Words : Count_Type;
+      Last : Natural;
+      Line : String (1 .. Word.Max_Length);
    begin
 
-      Open (File, In_File, Filename);
-      if not Is_Open (File) then
-         return Instance'(Capacity => 0, others => <>);
+      --  Make sure string concat will not overflow (happy SPARK is happy)
+      if Res_Path'Last >= Positive'Last - Filename'Length then
+         return;
       end if;
 
-      Valid_Words := Count_Valid_Words (File);
-      Reset (File);
+      Open (File, In_File, Res_Path & Filename);
+      if not Is_Open (File) then
+         return;
+      end if;
 
-      return This : Instance := Instance'(Capacity => Valid_Words,
-                                          others   => <>)
-      do
-         while not End_Of_File (File) loop
-            declare
-               Line : constant String := Get_Line (File);
-            begin
-               if Valid_Word (Line) then
-                  Word_Vector.Append (This.Words, Word.Create (Line));
-               end if;
-            end;
-         end loop;
-         Close (File);
-      end return;
-   end Create;
+      while not End_Of_File (File) loop
+         Get_Line (File, Line, Last);
+
+         --  Dict full?
+         exit when Length (This.Words) = Capacity (This.Words);
+
+         declare
+            W : constant String := Line (Line'First .. Last);
+         begin
+            if Valid_Word (W) then
+               Word_Vector.Append (This.Words, Word.Create (W));
+            end if;
+         end;
+      end loop;
+
+      Close (File);
+      pragma Unreferenced (File);
+   end Load;
 
    --------------
    -- Is_Empty --
@@ -80,11 +78,10 @@ package body Ada_SPARK_Workflow.Word_Search.Dictionary is
    -- Pop_Last --
    --------------
 
-   function Pop_Last (This : in out Instance) return Word.Instance is
-      Result : constant Word.Instance := Word_Vector.Last_Element (This.Words);
+   procedure Pop_Last (This : in out Instance; W : out Word.Instance) is
    begin
+      W := Word_Vector.Last_Element (This.Words);
       Word_Vector.Delete_Last (This.Words);
-      return Result;
    end Pop_Last;
 
    --------------------

@@ -2,7 +2,9 @@ with Ada.Text_IO;
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
 
-package body Ada_SPARK_Workflow.Word_Search.Solution is
+package body Ada_SPARK_Workflow.Word_Search.Solution
+with SPARK_Mode
+is
 
    --------------
    -- Add_Word --
@@ -32,7 +34,11 @@ package body Ada_SPARK_Workflow.Word_Search.Solution is
    begin
 
       for P of This.Placements loop
+         pragma Loop_Invariant (Max_Word_Len <= Word.Max_Length);
+         pragma Assert (P.W.To_Str'Length <= Word.Max_Length);
+
          Max_Word_Len := Natural'Max (Max_Word_Len, P.W.To_Str'Length);
+
       end loop;
 
       declare

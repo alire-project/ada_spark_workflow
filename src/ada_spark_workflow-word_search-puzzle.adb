@@ -1,66 +1,41 @@
 with Ada.Text_IO;
 with Ada.Integer_Text_IO;
 with Ada.Strings.Fixed;
-with Ada.Numerics.Discrete_Random;
 
-package body Ada_SPARK_Workflow.Word_Search.Puzzle is
+with Ada_SPARK_Workflow.Word_Search.RNG;
 
-   ------------
-   -- Create --
-   ------------
-
-   function Create (Width, Height              : Positive;
-                    Max_Words                  : Positive;
-                    Min_Word_Len, Max_Word_Len : Positive)
-                    return Instance
-   is
-      Dict : Dictionary.Instance := Dictionary.Create (Min_Word_Len,
-                                                       Max_Word_Len);
-   begin
-      return Create (Width, Height, Max_Words, Dict);
-   end Create;
+package body Ada_SPARK_Workflow.Word_Search.Puzzle
+with SPARK_Mode
+is
 
    ------------
    -- Create --
    ------------
 
-   function Create (Width, Height, Max_Words : Positive;
-                    Dict : in out Dictionary.Instance)
-                    return Instance
+   procedure Create (This : in out Instance;
+                     Dict : in out Dictionary.Instance)
    is
       Success : Boolean;
    begin
-      return This : Instance (Width, Height,
-                              Ada.Containers.Count_Type (Max_Words))
-      do
-         Dict.Random_Shuffle;
+      Dict.Random_Shuffle;
 
-         while not Dict.Is_Empty loop
+      while not Dict.Is_Empty loop
 
-            This.Add_Word (Dict.Pop_Last, Success);
+         declare
+            W : Word.Instance;
+         begin
+            Dict.Pop_Last (W);
+            This.Add_Word (W, Success);
+         end;
 
-            exit when
-              Success
-              and then
-                not This.Empty_Cells
-                and then
-                  This.Complete;
+         exit when Success
+           and then not This.Empty_Cells
+           and then This.Complete;
 
-         end loop;
+      end loop;
 
-         This.Fill_Empty;
-      end return;
+      This.Fill_Empty;
    end Create;
-
-   --------------
-   -- Complete --
-   --------------
-
-   function Complete (This : Instance) return Boolean is
-      use type Ada.Containers.Count_Type;
-   begin
-      return This.Used_Count >= This.Max_Words;
-   end Complete;
 
    -----------------
    -- Empty_Cells --
@@ -68,7 +43,15 @@ package body Ada_SPARK_Workflow.Word_Search.Puzzle is
 
    function Empty_Cells (This : Instance) return Boolean is
    begin
-      return (for some Cell of This.Grid => Cell = ' ');
+      for X in This.Grid'Range (1) loop
+         for Y in This.Grid'Range (2) loop
+            if This.Grid (X, Y) = Empty_Cell then
+               return True;
+            end if;
+         end loop;
+      end loop;
+
+      return False;
    end Empty_Cells;
 
    --------------
@@ -91,22 +74,25 @@ package body Ada_SPARK_Workflow.Word_Search.Puzzle is
       subtype Coord_X is Positive range This.Grid'Range (1);
       subtype Coord_Y is Positive range This.Grid'Range (2);
 
-      package Rand_X_Pck is new Ada.Numerics.Discrete_Random (Coord_X);
-      package Rand_Y_Pck is new Ada.Numerics.Discrete_Random (Coord_Y);
-      package Rand_Dir_Pck is new Ada.Numerics.Discrete_Random (Direction);
+      package Rand_X_Pck is new RNG (Coord_X);
+      package Rand_Y_Pck is new RNG (Coord_Y);
+      package Rand_Dir_Pck is new RNG (Direction);
 
       function Next_X is new Next_Gen (Coord_X);
       function Next_Y is new Next_Gen (Coord_Y);
       function Next_Dir is new Next_Gen (Direction);
 
-      Gen_X      : Rand_X_Pck.Generator;
-      First_X, X : Coord_X;
+      Gen_X      : constant Rand_X_Pck.Instance := Rand_X_Pck.Create;
+      First_X    : constant Coord_X := Gen_X.Random;
+      X          : Coord_X := First_X;
 
-      Gen_Y      : Rand_Y_Pck.Generator;
-      First_Y, Y : Coord_Y;
+      Gen_Y      : constant Rand_Y_Pck.Instance := Rand_Y_Pck.Create;
+      First_Y    : constant Coord_Y := Gen_Y.Random;
+      Y          : Coord_Y := First_Y;
 
-      Gen_Dir        : Rand_Dir_Pck.Generator;
-      First_Dir, Dir : Direction;
+      Gen_Dir    : constant Rand_Dir_Pck.Instance  := Rand_Dir_Pck.Create;
+      First_Dir  : constant Direction := Gen_Dir.Random;
+      Dir        : Direction := First_Dir;
    begin
 
       if This.Complete then
@@ -115,27 +101,19 @@ package body Ada_SPARK_Workflow.Word_Search.Puzzle is
          return;
       end if;
 
-      Rand_X_Pck.Reset (Gen_X);
-      First_X := Rand_X_Pck.Random (Gen_X);
-      X := First_X;
-
-      Rand_Y_Pck.Reset (Gen_Y);
-      First_Y := Rand_Y_Pck.Random (Gen_Y);
-      Y := First_Y;
-
-      Rand_Dir_Pck.Reset (Gen_Dir);
-      First_Dir := Rand_Dir_Pck.Random (Gen_Dir);
-      Dir := First_Dir;
-
       --  Try all direction and positions, starting from random direction and
       --  position.
 
       loop
+         pragma Loop_Invariant (This.Used_Count < This.Max_Words);
          loop
+            pragma Loop_Invariant (This.Used_Count < This.Max_Words);
             loop
+               pragma Loop_Invariant (This.Used_Count < This.Max_Words);
+
                This.Try_Set_Word (W, X, Y, Dir, Success);
 
-               if Success then
+               if Success or else This.Complete then
                   return;
                end if;
 
@@ -204,7 +182,6 @@ package body Ada_SPARK_Workflow.Word_Search.Puzzle is
                            Dir     :        Direction;
                            Success :    out Boolean)
    is
-      use type Ada.Containers.Count_Type;
 
       DX : constant Integer := (case Dir is
                                    when North | South => 0,
@@ -226,19 +203,25 @@ package body Ada_SPARK_Workflow.Word_Search.Puzzle is
    begin
 
       --  Check bounds
-      if XE not in This.Grid'Range (1)
+      if Str'Length = 0
+        or else
+         XE not in This.Grid'Range (1)
         or else
          YE not in This.Grid'Range (2)
       then
-
          --  Word doesn't fit in grid
          Success := False;
          return;
       end if;
 
-      for C of Str loop
+      --  Check if word can be placed in the grid at given position and
+      --  direction.
+      for Count in 0 .. Str'Length - 1 loop
+         pragma Loop_Invariant (X = XS + Count * DX);
+         pragma Loop_Invariant (Y = YS + Count * DY);
 
-         if This.Grid (X, Y) not in C | Empty_Cell then
+         if This.Grid (X, Y) not in Str (Str'First + Count) | Empty_Cell
+         then
             --  Conflict with word already in the grid
             Success := False;
             return;
@@ -253,14 +236,16 @@ package body Ada_SPARK_Workflow.Word_Search.Puzzle is
       --  Place the word
       X := XS;
       Y := YS;
-      for C of Str loop
-         This.Grid (X, Y) := C;
+      for Count in 0 .. Str'Length - 1 loop
+         pragma Loop_Invariant (X = XS + Count * DX);
+         pragma Loop_Invariant (Y = YS + Count * DY);
+
+         This.Grid (X, Y) := Str (Str'First + Count);
          X := X + DX;
          Y := Y + DY;
       end loop;
 
-      This.Used_Count := This.Used_Count + 1;
-      This.Sol.Add_Word (W, XS, YS, XE, YE);
+      Word_Search.Solution.Add_Word (This.Sol, W, XS, YS, XE, YE);
       Success := True;
    end Try_Set_Word;
 
@@ -271,15 +256,14 @@ package body Ada_SPARK_Workflow.Word_Search.Puzzle is
    procedure Fill_Empty (This : in out Instance) is
       subtype Valid_Char is Character range 'a' .. 'z';
 
-      package Rand_Char_Pck is new Ada.Numerics.Discrete_Random (Valid_Char);
+      package Rand_Char_Pck is new RNG (Valid_Char);
 
-      Gen : Rand_Char_Pck.Generator;
+      Gen : constant Rand_Char_Pck.Instance := Rand_Char_Pck.Create;
    begin
-      Rand_Char_Pck.Reset (Gen);
 
       for C of This.Grid loop
          if C = Empty_Cell then
-            C := Rand_Char_Pck.Random (Gen);
+            C := Gen.Random;
          end if;
       end loop;
    end Fill_Empty;

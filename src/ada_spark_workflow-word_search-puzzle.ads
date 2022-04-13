@@ -2,24 +2,21 @@ with Ada_SPARK_Workflow.Word_Search.Word;
 with Ada_SPARK_Workflow.Word_Search.Solution;
 with Ada_SPARK_Workflow.Word_Search.Dictionary;
 
-private with Ada.Containers;
-private with Ada_SPARK_Workflow.Word_Search.Word_Vector;
+with Ada.Containers;
 
-package Ada_SPARK_Workflow.Word_Search.Puzzle is
+package Ada_SPARK_Workflow.Word_Search.Puzzle
+with SPARK_Mode
+is
 
-   type Instance (<>)
+   subtype Grid_Size is Positive range Positive'First .. 10_000;
+
+   type Instance (Width, Height : Grid_Size;
+                  Max_Words : Ada.Containers.Count_Type)
    is tagged
    private;
 
-   function Create (Width, Height              : Positive;
-                    Max_Words                  : Positive;
-                    Min_Word_Len, Max_Word_Len : Positive)
-                    return Instance;
-   --  Create a Word Search Puzzle from internal dictionary
-
-   function Create (Width, Height, Max_Words : Positive;
-                    Dict : in out Dictionary.Instance)
-                    return Instance;
+   procedure Create (This : in out Instance;
+                     Dict : in out Dictionary.Instance);
    --  Create a Word Search Puzzle from provided dictionary
 
    procedure Print (This : Instance);
@@ -28,26 +25,29 @@ package Ada_SPARK_Workflow.Word_Search.Puzzle is
 
 private
 
+   use type Ada.Containers.Count_Type;
+
    Empty_Cell : constant Character := ' ';
 
-   type Puzzle_Grid is array (Positive range <>,
-                              Positive range <>)
+   type Puzzle_Grid is array (Grid_Size range <>,
+                              Grid_Size range <>)
      of Character;
 
-   type Instance (Width, Height : Positive;
+   type Instance (Width, Height : Grid_Size;
                   Max_Words : Ada.Containers.Count_Type)
    is tagged
       record
          Grid : Puzzle_Grid (1 .. Width, 1 .. Height) :=
            (others => (others => Empty_Cell));
 
-         Used       : Word_Search.Word_Vector.Vector (Max_Words);
-         Used_Count : Ada.Containers.Count_Type := 0;
-
          Sol :  Word_Search.Solution.Instance (Max_Words);
       end record;
 
-   function Complete (This : Instance) return Boolean;
+   function Used_Count (This : Instance) return Ada.Containers.Count_Type
+   is (Word_Search.Solution.Word_Count (This.Sol));
+
+   function Complete (This : Instance) return Boolean
+   is (This.Max_Words = This.Used_Count);
    --  Return True if the puzzle is complete, i.e. Max_Words are inserted in
    --  the puzzle.
 
@@ -69,7 +69,9 @@ private
                            XS, YS  :        Positive;
                            Dir     :        Direction;
                            Success :    out Boolean)
-     with Pre => XS in This.Grid'Range (1) and then YS in This.Grid'Range (2);
+     with Pre'Class => This.Used_Count < This.Max_Words
+                       and then XS <= This.Grid'Last (1)
+                       and then YS <= This.Grid'Last (2);
 
    procedure Fill_Empty (This : in out Instance);
    --  Fill empty cells with random characters

@@ -1,4 +1,6 @@
-package body Ada_SPARK_Workflow.Word_Search.Word is
+package body Ada_SPARK_Workflow.Word_Search.Word
+with SPARK_Mode
+is
 
    ------------
    -- Create --
@@ -8,6 +10,7 @@ package body Ada_SPARK_Workflow.Word_Search.Word is
    begin
       return This : Instance do
          This.Len := Str'Length;
+         This.Str := (others => ASCII.NUL);
          This.Str (1 .. This.Len) := Str;
       end return;
    end Create;

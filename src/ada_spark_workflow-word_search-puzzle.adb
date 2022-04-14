@@ -66,10 +66,16 @@ is
          type T is (<>);
       function Next_Gen (Val : T) return T;
 
-      function Next_Gen (Val : T) return T
-      is (if Val = T'Last
-          then T'First
-          else T'Succ (Val));
+      --------------
+      -- Next_Gen --
+      --------------
+
+      function Next_Gen (Val : T) return T is
+      begin
+         return (if Val = T'Last
+                 then T'First
+                 else T'Succ (Val));
+      end Next_Gen;
 
       subtype Coord_X is Positive range This.Grid'Range (1);
       subtype Coord_Y is Positive range This.Grid'Range (2);

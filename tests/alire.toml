@@ -6,7 +6,6 @@ executables = ["tests"]
 
 [[depends-on]]
 aunit = "^22.0.0"
-gnatprove = "^11.2.3"
 gnatcov = "^22.0.1"
 ada_spark_workflow = "~0.0.0"
 

@@ -1,0 +1,32 @@
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  main:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ada-actions/toolchain@ce2020
+      - uses: alire-project/setup-alire@v1
+        with:
+          branch: "master"
+
+      - run: alr build --validation
+
+      - run: alr gnatprove -j0 --level=4
+
+      - run: cd tests && alr gnatcov instrument --level=stmt --dump-trigger=atexit --projects ada_spark_workflow.gpr
+      - run: cd tests && alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full 
+      - run: cd tests && alr exec ./bin/tests
+      - run: cd tests && alr gnatcov coverage --annotate=xcov --output-dir gnatcov_out --level=stmt --projects ada_spark_workflow.gpr *.srctrace
+
+      - uses: alire-project/gnatcov-to-codecovio-action@main
+        with:
+          fail_ci_if_error: true
+          verbose: true

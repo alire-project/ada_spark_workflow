@@ -4,6 +4,7 @@ version = "0.1.0-dev"
 
 [[depends-on]]
 resources = "~0.1.0"
+gnatprove = "^11.2.3"
 
 [[pins]]
 resources = { url='https://github.com/alire-project/resources' }

@@ -11,6 +11,7 @@ jobs:
         os: [ubuntu-latest]
     env:
       REVIEWDOG_CMD: 'reviewdog -reporter=github-pr-review -efm="%f:%l:%c: %m" -diff="git diff master"'
+      REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     runs-on: ${{ matrix.os }}
     steps:

@@ -9,6 +9,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
+    env:
+      REVIEWDOG_CMD: 'reviewdog -reporter=github-pr-review -efm="%f:%l:%c: %m" -diff="git diff master"'
+
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -18,9 +21,9 @@ jobs:
           branch: "master"
       - uses: reviewdog/action-setup@v1
 
-      - run: alr build --validation | reviewdog -reporter=github-pr-review -efm="%f:%l:%c: %m" -diff="git diff master"
+      - run: alr build --validation | ${{ env.REVIEWDOG_CMD }}
 
-      - run: alr gnatprove -j0 --level=4  | reviewdog -reporter=github-pr-review  -efm="%f:%l:%c: %m" -diff="git diff master"
+      - run: alr gnatprove -j0 --level=4 | ${{ env.REVIEWDOG_CMD }}
 
       - run: cd tests && alr gnatcov instrument --level=stmt --dump-trigger=atexit --projects ada_spark_workflow.gpr
       - run: cd tests && alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full 

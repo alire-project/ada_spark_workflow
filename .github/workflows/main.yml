@@ -26,7 +26,7 @@ jobs:
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-         alr build --validation | reviewdog -efm="%f:%l:%c: %m" -diff="git diff FETCH_HEAD" -reporter=github-check -name build -tee
+         alr build --validation 2>&1 | reviewdog -efm="%f:%l:%c: %m" -diff="git diff FETCH_HEAD" -reporter=github-check -name build -tee -filter-mode nofilter -fail-on-error
         
         # alr build --validation | ${{ env.REVIEWDOG_CMD }}
 

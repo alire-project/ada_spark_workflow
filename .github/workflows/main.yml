@@ -16,10 +16,11 @@ jobs:
       - uses: alire-project/setup-alire@v1
         with:
           branch: "master"
+      - uses: reviewdog/action-setup@v1
 
-      - run: alr build --validation
+      - run: alr build --validation | reviewdog -reporter=github-pr-review
 
-      - run: alr gnatprove -j0 --level=4
+      - run: alr gnatprove -j0 --level=4  | reviewdog -reporter=github-pr-review
 
       - run: cd tests && alr gnatcov instrument --level=stmt --dump-trigger=atexit --projects ada_spark_workflow.gpr
       - run: cd tests && alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full 

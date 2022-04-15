@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
     env:
-      REVIEWDOG_CMD: 'reviewdog -reporter=github-check -efm="%f:%l:%c:%m"'
+      REVIEWDOG_CMD: 'reviewdog -efm="%f:%l:%c: %m" -reporter=github-pr-review -tee -filter-mode nofilter -fail-on-error'
       REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     runs-on: ${{ matrix.os }}
@@ -22,15 +22,9 @@ jobs:
           branch: "master"
       - uses: reviewdog/action-setup@v1
 
-      - name: SPARK proof
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-         alr build --validation 2>&1 | reviewdog -efm="%f:%l:%c: %m" -diff="git diff FETCH_HEAD" -reporter=github-pr-review -name build -tee -filter-mode nofilter -fail-on-error
-        
-        # alr build --validation | ${{ env.REVIEWDOG_CMD }}
+      - run: alr build --validation      2>&1 | ${{ env.REVIEWDOG_CMD }} -name Build
 
-      - run: alr gnatprove -j0 --level=4 | ${{ env.REVIEWDOG_CMD }}
+      - run: alr gnatprove -j0 --level=4 2>&1 | ${{ env.REVIEWDOG_CMD }} -name Proof
 
       - run: cd tests && alr gnatcov instrument --level=stmt --dump-trigger=atexit --projects ada_spark_workflow.gpr
       - run: cd tests && alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full 

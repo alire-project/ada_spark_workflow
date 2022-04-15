@@ -25,7 +25,7 @@ jobs:
       - run: |
          alr build --validation > output.txt 2>&1 || status=$?
          cat output.txt
-         cat output.txt | reviewdog -efm="%f:%l:%c: %m" -diff="git diff master" --reporter=github-pr-review
+         cat output.txt | reviewdog -efm="%f:%l:%c: %m" -diff="git diff master" --reporter=github-check
          # Check for errors
          if [ $status -ne 0 ]; then
             echo "ERROR: gprbuild returned $status"

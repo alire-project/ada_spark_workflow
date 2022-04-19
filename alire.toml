@@ -1,6 +1,13 @@
 name = "ada_spark_workflow"
-description = "Shiny new project"
+description = "A demo of best practices for open-source Ada/SPARK development"
 version = "0.1.0-dev"
+
+authors = ["The Alire Team"]
+maintainers = ["fabien.chouteau@gmail.com"]
+maintainers-logins = ["Fabien-Chouteau"]
+tags = ["demo", "example", "spark", "coverage", "tests"]
+website = "alire.ada.dev"
+licenses = "MIT"
 
 [[depends-on]]
 resources = "~0.1.0"

@@ -8,7 +8,7 @@ package Ada_SPARK_Workflow.Word_Search.Dictionary
 with SPARK_Mode
 is
 
-   type Instance (Capacity : Ada.Containers.Count_Type)
+   type Instance(Capacity : Ada.Containers.Count_Type)
    is tagged limited
    private;
 

@@ -35,11 +35,11 @@ jobs:
           verbose: true
 
       - name: Make Release
-        if: (github.event_name == 'release')
-        run: alr publish --skip-build ${{env.GITHUB_SERVER_URL}}/${{env.GITHUB_REPOSITORY}} ${{env.GITHUB_SHA}} # TODO: remove --skip-build when resources crate is published
+        # if: (github.event_name == 'release')
+        run: alr publish --skip-build ${{github.repositoryUrl}} ${{github.sha}} # TODO: remove --skip-build when resources crate is published
 
       - name: Get Name of manifest
-        if: (github.event_name == 'release')
+        # if: (github.event_name == 'release')
         run: |
           MANIFEST_PATHNAME=$(ls alire/*.toml | head -n 1)
           MANIFEST_NAME=$(basename $MANIFEST_PATHNAME)

@@ -34,8 +34,7 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
-      - name: Make Release
-        # if: (github.event_name == 'release')
+      - name: Make Release Manifest
         run: |
           # Set user GitHub login required for `alr publish`
           alr config --set --global user.github_login ${{github.repository_owner}}
@@ -43,10 +42,10 @@ jobs:
           # Run Alire publish assistant
           alr publish --skip-build ${{github.server_url}}/${{github.repository}} ${{github.sha}} # TODO: remove --skip-build when resources crate is published
 
-      - name: Get Name of manifest
-        # if: (github.event_name == 'release')
+      - name: Get Release Manifest PATH
         run: |
-          echo MANIFEST_PATHNAME=$(ls alire/*.toml | head -n 1) >> $GITHUB_ENV
+          export MANIFEST_PATHNAME=$(ls alire/*.toml | head -n 1)
+          echo MANIFEST_PATHNAME=$MANIFEST_PATHNAME >> $GITHUB_ENV
           echo MANIFEST_NAME=$(basename $MANIFEST_PATHNAME) >> $GITHUB_ENV
 
       - name: Upload release manifest

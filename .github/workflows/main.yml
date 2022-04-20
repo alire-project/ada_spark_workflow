@@ -46,10 +46,8 @@ jobs:
       - name: Get Name of manifest
         # if: (github.event_name == 'release')
         run: |
-          MANIFEST_PATHNAME=$(ls alire/*.toml | head -n 1)
-          MANIFEST_NAME=$(basename $MANIFEST_PATHNAME)
-          echo ::set-env name=MANIFEST_NAME::${MANIFEST_NAME}
-          echo ::set-env name=MANIFEST_PATHNAME::${MANIFEST_PATHNAME}
+          echo MANIFEST_PATHNAME=$(ls alire/*.toml | head -n 1) >> $GITHUB_ENV
+          echo MANIFEST_NAME=$(basename $MANIFEST_PATHNAME) >> $GITHUB_ENV
 
       - name: Upload release manifest
         if: (github.event_name == 'release')

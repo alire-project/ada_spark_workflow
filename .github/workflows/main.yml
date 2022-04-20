@@ -36,7 +36,7 @@ jobs:
 
       - name: Make Release
         if: (github.event_name == 'release')
-        run: alr publish --skip-build # TODO: remove --skip-build when resources crate is published
+        run: alr publish --skip-build ${{env.GITHUB_SERVER_URL}}/${{env.GITHUB_REPOSITORY}} ${{env.GITHUB_SHA}} # TODO: remove --skip-build when resources crate is published
 
       - name: Get Name of manifest
         if: (github.event_name == 'release')

@@ -44,7 +44,7 @@ jobs:
 
       - name: Get Release Manifest PATH
         run: |
-          export MANIFEST_PATHNAME=$(ls alire/*.toml | head -n 1)
+          export MANIFEST_PATHNAME=$(ls alire/releases/*.toml | head -n 1)
           echo MANIFEST_PATHNAME=$MANIFEST_PATHNAME >> $GITHUB_ENV
           echo MANIFEST_NAME=$(basename $MANIFEST_PATHNAME) >> $GITHUB_ENV
 
@@ -54,7 +54,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: ${{ env.MANIFEST_PATHNAME }}
           asset_name: ${{ env.MANIFEST_NAME }}
-          asset_content_type: application/x-elf
+          asset_content_type: application/toml

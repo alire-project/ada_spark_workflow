@@ -31,7 +31,7 @@ jobs:
 
       - uses: alire-project/gnatcov-to-codecovio-action@main
         with:
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           verbose: true
 
       - name: Make Release

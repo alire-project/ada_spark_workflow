@@ -7,11 +7,11 @@ The goal of this repository is to show the best practices for Ada/SPARK open-sou
 
 In this project we use:
 
- - `Alire` for dependency management and release publication
- - `SPARK` and `GNATprove` for formal verification
- - `AUnit` for unit-testing
- - `GNATcoverage` for source code coverage analysis
- - `GitHub Actions` for Continuous Integration
+ - [`Alire`](https://alire.ada.dev) for dependency management and release publication
+ - [`SPARK`](https://learn.adacore.com/courses/intro-to-spark/index.html) and [`GNATprove`](https://github.com/AdaCore/spark2014) for formal verification
+ - [`AUnit`](https://github.com/AdaCore/aunit) for unit-testing
+ - [`GNATcoverage`](https://github.com/AdaCore/gnatcoverage) for source code coverage analysis
+ - [`GitHub Actions`](https://docs.github.com/en/actions) for Continuous Integration
 
 
 # Layout of the repository
@@ -86,7 +86,7 @@ To see the code coverage reports in GitHub pull-requests and have a dedicated pa
 - First create and account and log-in: https://about.codecov.io/
 - Click on "Not Yet Setup" (#1 below) to show the list of repositories available.
 - Click on "setup repo" (#2 below) to enable codecovio on the new repository
-- If the GitHub repository is public, you don't have to anything more
+- If the GitHub repository is public, you don't have to do anything more
 
 ![](https://files.readme.io/6438f9d-Screen_Shot_2022-04-13_at_9.28.09_AM.png)
 

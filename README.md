@@ -14,11 +14,11 @@ In this project we use:
  - [`GitHub Actions`](https://docs.github.com/en/actions) for Continuous Integration
 
 
-# Layout of the repository
+# Layout of the Repository
 
 This section provides a quick overview of the different parts of the projects.
 
-## Root directory
+## Root Directory
 The root directory contains the main library:
 
  - `alire.toml` manifest file
@@ -26,31 +26,31 @@ The root directory contains the main library:
  - `src` directory that contains the source code for the library
  - `README.md` file in markdown format displayed on the GitHub front page
 
-## `tests` directory
+## `tests` Directory
 
 This sub-directory contains the test-suite for the library. It is an Alire project itself, with a local dependency to the main crate in the root directory, as well as other dependencies that are only required for testing (e.g. `aunit` and `gnatcov`). In this directory we also find an `alire.toml` manifest, a GPRbuild project file and a source directory.
 
-## `.github` directory
+## `.github` Directory
 
-The `.github` directory contains files specific to GitHub features and services. For this project we use GitHub Actions for the Continuous Integration (see GitHub Actions section). But there are more to explore, like templates for opening issues and pull-requests, contributions or code-of-conduct guidelines.
+The `.github` directory contains files specific to GitHub features and services. For this project we use GitHub Actions for the Continuous Integration (see [GitHub Actions](#continuous-integration-github-actions) section). But there are more to explore, like templates for opening issues and pull-requests, contributions or code-of-conduct guidelines.
 
-## `share` directory
+## `share` Directory
 
 This sub-directory contains data files to be installed with the projects.
-See "Resources" section.
+See [Resources](#resources) section.
 
-# How to make a similar project?
+# How to Make a Similar project?
 
 This sections provides a list of steps to create a library project with a similar workflow:
 
-## Create a repository on GitHub
+## Create a Repository on GitHub
 
 For this step you should follow [the instruction from GitHub](https://docs.github.com/en/get-started/quickstart/create-a-repo).
 
 We recommend to use a repository name that matches the Alire crate name.
 For the example below we will use the name: `my_crate`.
 
-## Setup the layout
+## Setup the Layout
 
 For this step we are going to list a few commands to run on the console.
 Please note that we first export variables for the name of the Alire crate a GitHub user login to make the commands more readable.
@@ -73,13 +73,13 @@ $ alr with gnatcov
 
 ## Add Continuous Integration
 
-For this step we just create a folder for the GitHub Action workflow files and copy the workflow from this repository:
+For this step we create a folder for the GitHub Action workflow files and copy the workflow from this repository:
 ```console
 $ mkdir -p .github/workflow/
 $ curl https://raw.githubusercontent.com/alire-project/ada_spark_workflow/main/.github/workflows/main.yml  > .github/workflows/main.yml
 ```
 
-## Enable Code Coverage reports
+## Enable Code Coverage Reports
 
 To see the code coverage reports in GitHub pull-requests and have a dedicated page for coverage status, you have to setup the repository in codecovio.
 
@@ -95,7 +95,7 @@ Don't forget to add a [coverage status badge](https://docs.codecov.com/docs/stat
 # Continuous Integration (GitHub Actions)
 
 For this project we use GitHub Actions for Continuous Integration (CI).
-It provides virtual machines to build and tests the project when new code is added, as well as automated validation of contributions through pull-request checks, or code coverage report with codecovio.
+It provides virtual machines to build and test the project when new code is added, as well as automated validation of contributions through pull-request checks, or code coverage report with codecovio.
 
 The only thing needed for CI to work is a "workflow" file in the `.github/workflows/` directory.
 
@@ -107,14 +107,14 @@ Some projects requires non-code data files to be provided alongside the library 
 
 For this demo project, we have a text file that contains a list of words, a dictionary.
 
-Resources should be placed in the `share/<CRATE_NAME>/` directory of the repository . In addition, the following lines in the GPRbuild project file will make sure resources are installed with the library/application:
+Resources should be placed in the `share/<CRATE_NAME>/` directory of the repository. In addition, the following lines in the GPRbuild project file will make sure resources are installed with the library/application:
 ```ada
    package Install is
       for Artifacts (".") use ("share");
    end Install;
 ```
 
-To be able to read the resource files, one needs to get a path to the resource folder. However the location of the resources will not always be the same depending on installation path for instance. The Alire crate `resources` provides a easy way to solve this problem. Here's how to use it:
+To be able to read the resource files, one needs to get a path to the resource folder. However the location of the resources will not always be the same depending on installation path for instance. The Alire crate `resources` provides an easy way to solve this problem. Here's how to use it:
 
  1. Add `resources` in the dependencies of you crate:
    ```console

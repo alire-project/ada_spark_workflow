@@ -11,14 +11,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: ada-actions/toolchain@ce2020
       - uses: alire-project/setup-alire@v1
         with:
-          branch: "master"
+          version: 1.2.0-rc1
 
       - run: alr build --validation
 

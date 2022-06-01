@@ -1,52 +1,72 @@
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
-
+on:                    # Run the workflow for each of the following event:
+  push:                # - A branch is pushed or updated.
+  pull_request:        # - A pull-request is openned or updated.
+  workflow_dispatch:   # - A manual run of the workflow is requested from the GitHub web interface.
   release:
-    types: [created]
+    types: [created]   # - A release is created.
 
 jobs:
   main:
     strategy:
-      fail-fast: false
+      
+      fail-fast: false # Don't stop all the workflows when one of them fails.
+    
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu-latest, windows-latest, macos-latest] # List of GitHuh Actions platform to run the workflow on
+
+    runs-on: ${{ matrix.os }} # Run the continous integration workflow on each OS listed in the matrix.
+    
     steps:
+        # Check-out the repository
       - uses: actions/checkout@v2
+
+        # Install and setup Alire package manager
       - uses: alire-project/setup-alire@v1
         with:
           version: 1.2.0-rc1
 
+        # Build the project using the validation build profile to enforce static analysis and coding style.
       - run: alr build --validation
 
+        # Run GNATprove to perform automatice formal verification of the SPARK code.
       - run: alr gnatprove -j0 --level=4
 
+        # Instrument the project code for coverage analysis.
       - run: cd tests && alr gnatcov instrument --level=stmt --dump-trigger=atexit --projects ada_spark_workflow.gpr
+
+        # Build testsuite with instrumented code.
       - run: cd tests && alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
+        
+        # Run the instrumented testsuite. This will produce at least one `.srctrace` file for the coverage analysis.
       - run: cd tests && alr exec ./bin/tests
+
+        # Run the GNATcov code coverage analysis on the trace files.
       - run: cd tests && alr gnatcov coverage --annotate=xcov --output-dir gnatcov_out --level=stmt --projects ada_spark_workflow.gpr *.srctrace
 
+        # Upload the code coverage analysis results to codecov.io
       - uses: alire-project/gnatcov-to-codecovio-action@main
         with:
-          fail_ci_if_error: false
+          fail_ci_if_error: false # Don't fail the workflow if codecov.io failed
           verbose: true
 
+        # Produce an Alire release manifest
       - name: Make Release Manifest
         run: |
           # Set user GitHub login required for `alr publish`
           alr config --set --global user.github_login ${{github.repository_owner}}
           
           # Run Alire publish assistant
-          alr publish --skip-build ${{github.server_url}}/${{github.repository}} ${{github.sha}} # TODO: remove --skip-build when resources crate is published
+          alr publish ${{github.server_url}}/${{github.repository}} ${{github.sha}}
 
+        # Save the path to the release manifest for the next step.
+        # This is a little trick to get around the fact that the actions/upload-release-asset doesn't allow globing pattern.
       - name: Get Release Manifest PATH
         run: |
           export MANIFEST_PATHNAME=$(ls alire/releases/*.toml | head -n 1)
           echo MANIFEST_PATHNAME=$MANIFEST_PATHNAME >> $GITHUB_ENV
           echo MANIFEST_NAME=$(basename $MANIFEST_PATHNAME) >> $GITHUB_ENV
 
+        # If this worklow was triggered by a release event, upload the release manifest as a GitHub release asset.
       - name: Upload release manifest
         if: (github.event_name == 'release')
         uses: actions/upload-release-asset@v1

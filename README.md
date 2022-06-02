@@ -39,13 +39,13 @@ can have extra dependencies only for testing:
  - GNATcoverage for [code coverage analysis](#code-coverage)
  - Etc.
 
-This project uses [AUnit](https://github.com/AdaCore/aunit) as unit testing
+This project uses [AUnit](https://github.com/AdaCore/aunit) as the unit testing
 framework. The `tests/` crate is both built and run as part of the [Continuous
 Integration](#continuous-integration-github-actions) process.
 
 # Code Coverage
 
-GNATcov is used to for code coverage analysis on execution of the
+GNATcov is used for code coverage analysis on execution of the
 [tests](#unit-testing). As part of the [Continuous
 Integration](#continuous-integration-github-actions) process, the coverage
 analysis is automatically produced and uploaded to an online service called
@@ -58,11 +58,11 @@ analysis result in your GitHub `readme.md` file:
 # Continuous Integration (GitHub Actions)
 
 For this project we use GitHub Actions for Continuous Integration (CI).
-It provides virtual machines to build and test the project when new code is added, as well as automated validation of contributions through pull-request checks, or code coverage report with codecovio.
+GitHub actions provides virtual machines to build and test the project when new code is added, as well as automated validation of contributions through pull-request checks, or code coverage report with codecovio.
 
 The only thing needed for CI to work is a "workflow" file in the `.github/workflows/` directory.
 
-We commented as much as possible the workflow file of this repository so if you want to know more about how it works please have a look [here](.github/workflows/main.yml).
+We extensively commented the workflow file of this repository so if you want to know more about how it works please have a look [here](.github/workflows/main.yml).
 
 # Layout of the Repository
 
@@ -144,7 +144,7 @@ Don't forget to add a [coverage status badge](https://docs.codecov.com/docs/stat
 
 # Resources
 
-Some projects requires non-code data files to be provided alongside the library or application executable. It can be images, databases, templates, etc. This is what we call "resources" in the Alire vocabulary.
+Some projects require non-code data files to be provided alongside the library or application executable. It can be images, databases, templates, etc. This is what we call "resources" in the Alire vocabulary.
 
 For this demo project, we have a text file that contains a list of words, a dictionary.
 
@@ -227,14 +227,14 @@ Given a version number MAJOR.MINOR.PATCH, increment the:
     PATCH version when you make backwards compatible bug fixes.
 ```
 
-The point is that a given crate `A` made to depends on version `1.2.3` of
+The point is that a given crate `A` made to depend on version `1.2.3` of
 another crate `B`, can safely be compiled with version any of `B` between
 `1.0.0` and `2.0.0`. Alire uses this system to find releases that satisfy all
 the dependency requirements of the different crates used.
 
 Let's look at some examples given a current version at `1.2.4-dev`:
 
- - If we change the prototype of a sub-program in a package specification. For
+ - If we change the prototype of a subprogram in a package specification. For
    instance:
    ```Ada
    procedure Print (Str : String);
@@ -246,10 +246,10 @@ Let's look at some examples given a current version at `1.2.4-dev`:
    This is an incompatible API change, we must increase the MAJOR version
    number. Therefore the new release number will be `2.0.0`.
 
- - If we change the prototype of a sub-program in a package specification, but
+ - If we change the prototype of a subprogram in a package specification, but
    provide a default value. For instance:
    ```Ada
-   procedure Print (Str : String; ; Indentation : Natural := 0);
+   procedure Print (Str : String; Indentation : Natural := 0);
    ```
    This is a new feature but compatible with the existing API, we must increase
    the MINOR version number. Therefore the new release number will
@@ -261,7 +261,7 @@ Let's look at some examples given a current version at `1.2.4-dev`:
 
 ## Version of main/master/development branch
 
-We recommend to use the `-dev` suffix for the version number of the development
+We recommend using the `-dev` suffix for the version number of the development
 branch. For instance: `1.2.4-dev`. This communicates that the crate the code is
 not in a release state, API might change, documentation might be lacking, etc.
 
@@ -274,7 +274,7 @@ The procedure is different for `MAJOR/MINOR` releases and `PATCH` releases.
 
 ### `MAJOR/MINOR` Releases
 
-We recommended to use a separate branch for each `MAJOR/MINOR` release, i.e.
+We recommended using a separate branch for each `MAJOR/MINOR` release, i.e.
 when the `MINOR` or `MAJOR` version number is increased:
     - `release/1.0`
     - `release/1.1`

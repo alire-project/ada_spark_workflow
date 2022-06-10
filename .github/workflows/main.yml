@@ -25,6 +25,9 @@ jobs:
         with:
           version: 1.2.0-rc1
 
+      - run: alr index --del=community
+      - run: alr index "--add=git+https://github.com/alire-project/alire-index#gnatprove-12.1.0-1"  --name=test
+
         # Build the project using the validation build profile to enforce static analysis and coding style.
       - run: alr build --validation
 

@@ -65,6 +65,7 @@ jobs:
         # Save the path to the release manifest for the next step.
         # This is a little trick to get around the fact that the actions/upload-release-asset doesn't allow globing pattern.
       - name: Get Release Manifest PATH
+        shell: bash
         run: |
           export MANIFEST_PATHNAME=$(ls alire/releases/*.toml | head -n 1)
           echo MANIFEST_PATHNAME=$MANIFEST_PATHNAME >> $GITHUB_ENV

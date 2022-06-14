@@ -33,6 +33,11 @@ jobs:
         # Run GNATprove to perform automatice formal verification of the SPARK code.
       - run: alr gnatprove -j0 --level=4 --report=provers
 
+      - uses: actions/upload-artifact@v3
+        with:
+          name: gnatprove.out
+          path: obj\validation\gnatprove\gnatprove.out
+
       - run: alr exec -- gnatprove --version
 
         # Instrument the project code for coverage analysis.

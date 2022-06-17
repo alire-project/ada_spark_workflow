@@ -25,11 +25,20 @@ jobs:
         with:
           version: 1.2.0-rc1
 
+      - run: alr index "--add=git+https://github.com/alire-project/alire-index#gnat_n_gnatprove_12" --name=test --before=community
+
         # Build the project using the validation build profile to enforce static analysis and coding style.
       - run: alr build --validation
 
         # Run GNATprove to perform automatice formal verification of the SPARK code.
-      - run: alr gnatprove -j0 --level=4
+      - run: alr gnatprove -j0 --level=4 --checks-as-errors --report=provers -v 
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: gnatprove.out
+          path: obj\validation\gnatprove\gnatprove.out
+
+      - run: alr exec -- gnatprove --version
 
         # Instrument the project code for coverage analysis.
       - run: cd tests && alr gnatcov instrument --level=stmt --dump-trigger=atexit --projects ada_spark_workflow.gpr
@@ -61,6 +70,7 @@ jobs:
         # Save the path to the release manifest for the next step.
         # This is a little trick to get around the fact that the actions/upload-release-asset doesn't allow globing pattern.
       - name: Get Release Manifest PATH
+        shell: bash
         run: |
           export MANIFEST_PATHNAME=$(ls alire/releases/*.toml | head -n 1)
           echo MANIFEST_PATHNAME=$MANIFEST_PATHNAME >> $GITHUB_ENV

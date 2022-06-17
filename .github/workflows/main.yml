@@ -31,7 +31,7 @@ jobs:
       - run: alr build --validation
 
         # Run GNATprove to perform automatice formal verification of the SPARK code.
-      - run: alr gnatprove -j0 --level=4 --report=provers -v
+      - run: alr gnatprove -j0 --level=4 --checks-as-errors --report=provers -v 
 
       - uses: actions/upload-artifact@v3
         with:

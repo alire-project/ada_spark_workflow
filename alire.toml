@@ -11,7 +11,7 @@ licenses = "MIT"
 
 [[depends-on]]
 resources = "~0.1.0"
-gnatprove = "^11.2.3"
+gnatprove = "^12.1.1"
 
 [[pins]]
 resources = { url='https://github.com/alire-project/resources' }

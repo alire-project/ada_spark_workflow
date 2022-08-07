@@ -112,11 +112,11 @@ $ export CRATE_NAME=my_crate
 $ export GITHUB_USER_NAME=mygithub
 $ git clone https://github.com/${GITHUB_USER_NAME}/${CRATE_NAME}
 $ cd ${CRATE_NAME}
-$ alr init –in-place –lib ${CRATE_NAME}
+$ alr init –-in-place –-lib ${CRATE_NAME}
 $ mkdir tests
 $ cd tests
-$ alr init –in-place -bin tests
-$ alr with ${CRATE_NAME} –use=..
+$ alr init –-in-place --bin tests
+$ alr with ${CRATE_NAME} -–use=..
 $ alr with aunit
 $ alr with gnatcov
 ```
@@ -125,7 +125,7 @@ $ alr with gnatcov
 
 For this step we create a folder for the GitHub Action workflow files and copy the workflow from this repository:
 ```console
-$ mkdir -p .github/workflow/
+$ mkdir -p .github/workflows/
 $ curl https://raw.githubusercontent.com/alire-project/ada_spark_workflow/main/.github/workflows/main.yml  > .github/workflows/main.yml
 ```
 
@@ -216,7 +216,7 @@ Alire uses the [Semantic Versioning](https://semver.org/) system for dependency
 resolution. It is very important to understand the basics of this system when
 releasing new versions of your crate.
 
-## Chose a version number for a release
+## Choose a version number for a release
 
 Semantic Versioning provides a rule for version numbers:
 ```

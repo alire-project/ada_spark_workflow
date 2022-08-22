@@ -28,7 +28,7 @@ jobs:
         # Build the project using the validation build profile to enforce static analysis and coding style.
       - run: alr build --validation
 
-        # Run GNATprove to perform automatice formal verification of the SPARK code.
+        # Run GNATprove to perform automatic formal verification of the SPARK code.
       - run: alr gnatprove -j0 --level=4
 
         # Instrument the project code for coverage analysis.

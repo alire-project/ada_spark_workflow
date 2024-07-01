@@ -112,11 +112,11 @@ $ export CRATE_NAME=my_crate
 $ export GITHUB_USER_NAME=mygithub
 $ git clone https://github.com/${GITHUB_USER_NAME}/${CRATE_NAME}
 $ cd ${CRATE_NAME}
-$ alr init –-in-place –-lib ${CRATE_NAME}
+$ alr init --in-place --lib ${CRATE_NAME}
 $ mkdir tests
 $ cd tests
-$ alr init –-in-place --bin tests
-$ alr with ${CRATE_NAME} -–use=..
+$ alr init --in-place --bin tests
+$ alr with ${CRATE_NAME} --use=..
 $ alr with aunit
 $ alr with gnatcov
 ```

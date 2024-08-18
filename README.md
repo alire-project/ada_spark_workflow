@@ -133,7 +133,7 @@ $ curl https://raw.githubusercontent.com/alire-project/ada_spark_workflow/main/.
 
 To see the code coverage reports in GitHub pull-requests and have a dedicated page for coverage status, you have to setup the repository in codecovio.
 
-- First create and account and log-in: https://about.codecov.io/
+- First create an account and log-in: https://about.codecov.io/
 - Click on "Not Yet Setup" (#1 below) to show the list of repositories available.
 - Click on "setup repo" (#2 below) to enable codecovio on the new repository
 - If the GitHub repository is public, you don't have to do anything more
@@ -161,7 +161,7 @@ To be able to read the resource files, one needs to get a path to the resource f
    ```console
    $ alr with resources
    ```
- 2. Instantiate the `Resources` generic package in your code. For examples:
+ 2. Instantiate the `Resources` generic package in your code. For example:
    ```ada
    with Resources;
    with Ada_Spark_Workflow_Config;
@@ -169,7 +169,7 @@ To be able to read the resource files, one needs to get a path to the resource f
    package Ada_SPARK_Workflow.Resources
    is new Standard.Resources (Ada_Spark_Workflow_Config.Crate_Name);
    ```
-   Note that you should replace `Ada_Spark_Workflow` with you crate name here.
+   Note that you should replace `Ada_Spark_Workflow` with your crate name here.
 
  3. Get path to resources using this new package:
    ```ada
@@ -228,7 +228,7 @@ Given a version number MAJOR.MINOR.PATCH, increment the:
 ```
 
 The point is that a given crate `A` made to depend on version `1.2.3` of
-another crate `B`, can safely be compiled with version any of `B` between
+another crate `B`, can safely be compiled with any version of `B` between
 `1.0.0` and `2.0.0`. Alire uses this system to find releases that satisfy all
 the dependency requirements of the different crates used.
 
@@ -262,7 +262,7 @@ Let's look at some examples given a current version at `1.2.4-dev`:
 ## Version of main/master/development branch
 
 We recommend using the `-dev` suffix for the version number of the development
-branch. For instance: `1.2.4-dev`. This communicates that the crate the code is
+branch. For instance: `1.2.4-dev`. This communicates that the crate code is
 not in a release state, API might change, documentation might be lacking, etc.
 
 ## Release workflow
@@ -274,7 +274,7 @@ The procedure is different for `MAJOR/MINOR` releases and `PATCH` releases.
 
 ### `MAJOR/MINOR` Releases
 
-We recommended using a separate branch for each `MAJOR/MINOR` release, i.e.
+We recommend using a separate branch for each `MAJOR/MINOR` release, i.e.
 when the `MINOR` or `MAJOR` version number is increased:
     - `release/1.0`
     - `release/1.1`
@@ -284,7 +284,7 @@ when the `MINOR` or `MAJOR` version number is increased:
 
 The procedure is:
  - From the development branch
- - Create a new branch: `$ git co -b release/X.Y`
+ - Create a new branch: `$ git checkout -b release/X.Y`
  - Update the version number in `alire.toml`
  - Push the branch to the repo: `$ git push`
  - Create a release from the GitHub web interface
@@ -301,7 +301,7 @@ For `PATCH` release (e.g `1.2.3`) use the corresponding release branch
 (`release/1.2`).
 
 The procedure is:
- - Check-out the release branch: `$ git co -b release/1.2 origin/release/1.2`
+ - Check-out the release branch: `$ git checkout -b release/1.2 origin/release/1.2`
  - Commit corrective patches or cherry-pick from the development branch
  - Update the `PATCH` version number in `alire.toml`
  - Push the branch to the repo: `$ git push`

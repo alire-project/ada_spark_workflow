@@ -1,6 +1,6 @@
-on:                    # Run the workflow for each of the following event:
+on:                    # Run the workflow for each of the following events:
   push:                # - A branch is pushed or updated.
-  pull_request:        # - A pull-request is openned or updated.
+  pull_request:        # - A pull-request is opened or updated.
   workflow_dispatch:   # - A manual run of the workflow is requested from the GitHub web interface.
   release:
     types: [created]   # - A release is created.
@@ -12,9 +12,9 @@ jobs:
       fail-fast: false # Don't stop all the workflows when one of them fails.
     
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest] # List of GitHuh Actions platform to run the workflow on
+        os: [ubuntu-latest, windows-latest, macos-latest] # List of GitHub Actions platform to run the workflow on
 
-    runs-on: ${{ matrix.os }} # Run the continous integration workflow on each OS listed in the matrix.
+    runs-on: ${{ matrix.os }} # Run the continuous integration workflow on each OS listed in the matrix.
     
     steps:
         # Check-out the repository
@@ -66,7 +66,7 @@ jobs:
           echo MANIFEST_PATHNAME=$MANIFEST_PATHNAME >> $GITHUB_ENV
           echo MANIFEST_NAME=$(basename $MANIFEST_PATHNAME) >> $GITHUB_ENV
 
-        # If this worklow was triggered by a release event, upload the release manifest as a GitHub release asset.
+        # If this workflow was triggered by a release event, upload the release manifest as a GitHub release asset.
       - name: Upload release manifest
         if: (github.event_name == 'release')
         uses: actions/upload-release-asset@v1

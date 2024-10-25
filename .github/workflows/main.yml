@@ -32,7 +32,7 @@ jobs:
       - run: alr gnatprove -j0 --level=4
 
         # Instrument the project code for coverage analysis.
-      - run: cd tests && alr gnatcov instrument --level=stmt --dump-trigger=atexit --projects ada_spark_workflow.gpr
+      - run: cd tests && alr build && alr gnatcov instrument --level=stmt --dump-trigger=atexit --projects ada_spark_workflow.gpr
 
         # Build testsuite with instrumented code.
       - run: cd tests && alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full

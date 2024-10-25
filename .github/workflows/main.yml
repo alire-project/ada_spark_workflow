@@ -8,14 +8,14 @@ on:                    # Run the workflow for each of the following events:
 jobs:
   main:
     strategy:
-      
+
       fail-fast: false # Don't stop all the workflows when one of them fails.
-    
+
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest] # List of GitHub Actions platform to run the workflow on
 
     runs-on: ${{ matrix.os }} # Run the continuous integration workflow on each OS listed in the matrix.
-    
+
     steps:
         # Check-out the repository
       - uses: actions/checkout@v2
@@ -23,7 +23,7 @@ jobs:
         # Install and setup Alire package manager
       - uses: alire-project/setup-alire@v1
         with:
-          version: 1.2.0-rc1
+          version: 1.2.2
 
         # Build the project using the validation build profile to enforce static analysis and coding style.
       - run: alr build --validation
@@ -36,7 +36,7 @@ jobs:
 
         # Build testsuite with instrumented code.
       - run: cd tests && alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
-        
+
         # Run the instrumented testsuite. This will produce at least one `.srctrace` file for the coverage analysis.
       - run: cd tests && alr exec ./bin/tests
 
@@ -54,7 +54,7 @@ jobs:
         run: |
           # Set user GitHub login required for `alr publish`
           alr config --set --global user.github_login ${{github.repository_owner}}
-          
+
           # Run Alire publish assistant
           alr publish ${{github.server_url}}/${{github.repository}} ${{github.sha}}
 

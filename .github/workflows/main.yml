@@ -54,13 +54,17 @@ jobs:
           verbose: true
 
         # Produce an Alire release manifest
-      - name: Configure Github credentials
+      - name: Configure Github credentials and generate manifest
+        shell: bash
         run: |
           # Set user GitHub login required for `alr publish`
           alr settings --set --global user.github_login ${{github.repository_owner}}
 
           # Run Alire publish assistant with the appropriate commit
-          alr publish ${{github.server_url}}/${{github.repository}} ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          # Force to allow generation for -dev version
+          alr -f publish --skip-submit \
+            ${{github.server_url}}/${{github.repository}} \
+            ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
         # Save the path to the release manifest for the next step.
         # This is a little trick to get around the fact that the actions/upload-release-asset doesn't allow globing pattern.

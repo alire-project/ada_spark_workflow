@@ -50,17 +50,24 @@ jobs:
           verbose: true
 
         # Produce an Alire release manifest
-      - name: Make Release Manifest
+      - name: Configure Github credentials
         run: |
           # Set user GitHub login required for `alr publish`
           alr config --set --global user.github_login ${{github.repository_owner}}
 
-          # Run Alire publish assistant
-          alr publish ${{github.server_url}}/${{github.repository}} ${{github.sha}}
+          # Run Alire publish assistant with the appropriate commit
+          alr publish ${{github.server_url}}/${{github.repository}} ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - if: github.event_name == 'pull_request'
+        run: alr publish ${{github.server_url}}/${{github.repository}} ${{ github.event.pull_request.head.sha }}
+
+      - if: github.event_name == 'push'
+        run: alr publish ${{github.server_url}}/${{github.repository}} ${{ github.sha }}
 
         # Save the path to the release manifest for the next step.
         # This is a little trick to get around the fact that the actions/upload-release-asset doesn't allow globing pattern.
       - name: Get Release Manifest PATH
+        shell: bash
         run: |
           export MANIFEST_PATHNAME=$(ls alire/releases/*.toml | head -n 1)
           echo MANIFEST_PATHNAME=$MANIFEST_PATHNAME >> $GITHUB_ENV

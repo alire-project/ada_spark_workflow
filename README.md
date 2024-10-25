@@ -1,6 +1,7 @@
 # Ada SPARK Workflow
 A demo of best practices for open-source Ada/SPARK development.
 
+[![checks](https://github.com/alire-project/ada_spark_workflow/workflows/main/badge.svg)](https://github.com/alire-project/ada_spark_workflow/actions)
 [![codecov](https://codecov.io/gh/alire-project/ada_spark_workflow/branch/main/graph/badge.svg?token=9PZQ67LBPF)](https://codecov.io/gh/alire-project/ada_spark_workflow)
 
 The goal of this repository is to show the best practices for Ada/SPARK open-source development. We will do our best to keep it updated with the latest technologies and services from Alire and GitHub. Don’t hesitate to suggest enhancements in case we missed something interesting.
@@ -293,7 +294,7 @@ The procedure is:
    contribute it to the Alire index.
  - Update the version number in `alire.toml` on the development branch
 
-Push bug fixes to the MINOR release branch and only update the PATCH number 
+Push bug fixes to the MINOR release branch and only update the PATCH number
 
 ### `PATCH` Releases
 

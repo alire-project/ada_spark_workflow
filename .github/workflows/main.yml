@@ -47,6 +47,8 @@ jobs:
 
         # Upload the code coverage analysis results to codecov.io
       - uses: alire-project/gnatcov-to-codecovio-action@main
+        if: matrix.os != 'macos-13'
+        # TODO: diagnose why it fails on macOS
         with:
           fail_ci_if_error: false # Don't fail the workflow if codecov.io failed
           verbose: true
@@ -59,12 +61,6 @@ jobs:
 
           # Run Alire publish assistant with the appropriate commit
           alr publish ${{github.server_url}}/${{github.repository}} ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
-
-      - if: github.event_name == 'pull_request'
-        run: alr publish ${{github.server_url}}/${{github.repository}} ${{ github.event.pull_request.head.sha }}
-
-      - if: github.event_name == 'push'
-        run: alr publish ${{github.server_url}}/${{github.repository}} ${{ github.sha }}
 
         # Save the path to the release manifest for the next step.
         # This is a little trick to get around the fact that the actions/upload-release-asset doesn't allow globing pattern.

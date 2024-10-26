@@ -10,6 +10,10 @@ website = "alire.ada.dev"
 licenses = "MIT"
 
 [[depends-on]]
+gnat = "^12"
+# Normally you don't want to depend on specific compiler versions, so you could
+# remove this dependency in your project.
+
 resources = "~0.1.0"
 gnatprove = "^11.2.3"
 

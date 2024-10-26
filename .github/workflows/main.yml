@@ -1,3 +1,5 @@
+name: Main
+
 on:                    # Run the workflow for each of the following events:
   push:                # - A branch is pushed or updated.
   pull_request:        # - A pull-request is opened or updated.
@@ -8,22 +10,22 @@ on:                    # Run the workflow for each of the following events:
 jobs:
   main:
     strategy:
-      
+
       fail-fast: false # Don't stop all the workflows when one of them fails.
-    
+
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest] # List of GitHub Actions platform to run the workflow on
+        os: [ubuntu-latest, windows-latest, macos-13] # List of GitHub Actions platform to run the workflow on
 
     runs-on: ${{ matrix.os }} # Run the continuous integration workflow on each OS listed in the matrix.
-    
+
     steps:
         # Check-out the repository
       - uses: actions/checkout@v2
 
         # Install and setup Alire package manager
-      - uses: alire-project/setup-alire@v1
+      - uses: alire-project/setup-alire@v4
         with:
-          version: 1.2.0-rc1
+          version: 2.0.2
 
         # Build the project using the validation build profile to enforce static analysis and coding style.
       - run: alr build --validation
@@ -32,11 +34,11 @@ jobs:
       - run: alr gnatprove -j0 --level=4
 
         # Instrument the project code for coverage analysis.
-      - run: cd tests && alr gnatcov instrument --level=stmt --dump-trigger=atexit --projects ada_spark_workflow.gpr
+      - run: cd tests && alr build && alr gnatcov instrument --level=stmt --dump-trigger=atexit --projects ada_spark_workflow.gpr
 
         # Build testsuite with instrumented code.
       - run: cd tests && alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
-        
+
         # Run the instrumented testsuite. This will produce at least one `.srctrace` file for the coverage analysis.
       - run: cd tests && alr exec ./bin/tests
 
@@ -45,22 +47,29 @@ jobs:
 
         # Upload the code coverage analysis results to codecov.io
       - uses: alire-project/gnatcov-to-codecovio-action@main
+        if: matrix.os != 'macos-13'
+        # TODO: diagnose why it fails on macOS
         with:
           fail_ci_if_error: false # Don't fail the workflow if codecov.io failed
           verbose: true
 
         # Produce an Alire release manifest
-      - name: Make Release Manifest
+      - name: Configure Github credentials and generate manifest
+        shell: bash
         run: |
           # Set user GitHub login required for `alr publish`
-          alr config --set --global user.github_login ${{github.repository_owner}}
-          
-          # Run Alire publish assistant
-          alr publish ${{github.server_url}}/${{github.repository}} ${{github.sha}}
+          alr settings --set --global user.github_login ${{github.repository_owner}}
+
+          # Run Alire publish assistant with the appropriate commit
+          # Force to allow generation for -dev version
+          alr -f publish --skip-submit \
+            ${{github.server_url}}/${{github.repository}} \
+            ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
         # Save the path to the release manifest for the next step.
         # This is a little trick to get around the fact that the actions/upload-release-asset doesn't allow globing pattern.
       - name: Get Release Manifest PATH
+        shell: bash
         run: |
           export MANIFEST_PATHNAME=$(ls alire/releases/*.toml | head -n 1)
           echo MANIFEST_PATHNAME=$MANIFEST_PATHNAME >> $GITHUB_ENV
